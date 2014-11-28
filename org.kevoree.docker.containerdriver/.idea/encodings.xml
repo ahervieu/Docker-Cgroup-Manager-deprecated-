@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/client/DockerApi.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/client/DockerClient.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/client/DockerClientImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/client/DockerException.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/AuthConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/CommitConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/Container.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ContainerConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ContainerDetail.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ContainerInfo.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ContainerState.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/HostConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/Image.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ImageConfig.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ImageInfo.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/NetworkPort.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/NetworkSettings.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/Port.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/kevoree/docker/containerdriver/model/ProgressDetail.java" charset="UTF-8" />
+  </component>
+</project>
+
