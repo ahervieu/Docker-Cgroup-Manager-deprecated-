@@ -5,7 +5,7 @@ package org.kevoree.docker.containerdriver.cgroupDriver;
  */
 public interface CgroupStructure {
 
-    static final String cGroupURI              = "/sys/fs/cgroup/" ;
+    static final String cGroupURI              = "/sys/fs/cgroup" ;
     //Subsystems
     static final String blkio_subsystem        = "blkio" ;
     static final String cpuset_subsystem       = "cpuset" ;
@@ -24,4 +24,8 @@ public interface CgroupStructure {
     static final String memory_max_mem    = "memory.limit_in_bytes" ;
     static final String memory_swap       = "memory.memsw.limit_in_bytes" ;
 
+    static final String cpuset_cpus       = "cpuset.cpus" ;
+
+    static final String cpu_cfs_period       = "cpu.cfs_period_us" ;
+    static final String cpu_cfs_quota       = "cpu.cfs_quota_us" ;
 }

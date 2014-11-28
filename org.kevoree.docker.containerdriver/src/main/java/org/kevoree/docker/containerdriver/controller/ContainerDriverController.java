@@ -12,6 +12,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import org.kevoree.docker.containerdriver.cgroupDriver.BlkioDriver;
+import org.kevoree.docker.containerdriver.cgroupDriver.CPUDriver;
+import org.kevoree.docker.containerdriver.cgroupDriver.MemoryDriver;
 import org.kevoree.docker.containerdriver.client.DockerClientImpl;
 import org.kevoree.docker.containerdriver.client.DockerException;
 import org.kevoree.docker.containerdriver.model.Container;
@@ -53,12 +55,18 @@ public class ContainerDriverController implements Initializable {
 
     @FXML
     private void handleButtonApply() {
-        if(isRoot())
+        if(true)
         {
         ContainerDetail  currContainer = getCurrentContainer();
+
         BlkioDriver.setWriteValue(currContainer.getId(),io_write.getText());
         BlkioDriver.setReadValue(currContainer.getId(),io_read.getText());
 
+        CPUDriver.setCPUValue(currContainer.getId(),cpu_number.getText());
+        CPUDriver.setFreqValue(currContainer.getId(), freq.getText());
+
+        MemoryDriver.setMaxMemValue(currContainer.getId(), maxMem.getText());
+        MemoryDriver.setSwapValue(currContainer.getId(), swap.getText());
         }
     }
 
@@ -122,12 +130,15 @@ public class ContainerDriverController implements Initializable {
             currContainer = getCurrentContainer() ;
             ContainerConfig currConf = currContainer.getConfig();
 
-            cpu_number.setText(String.valueOf(currConf.getCpuShares()));
-            maxMem.setText(String.valueOf(currConf.getMemoryLimit()));
 
-            io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
-            io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
+        io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
+        io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
 
+        cpu_number.setText(CPUDriver.getCpuValue(currContainer.getId()));
+        freq.setText(CPUDriver.getFreqValue(currContainer.getId()));
+
+        maxMem.setText(MemoryDriver.getMaxMemValue(currContainer.getId()));
+        swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
 
 
     }

@@ -38,14 +38,17 @@ public class BlkioDriver {
         }
 
     public static void setReadValue(String containerId, String value) {
+        if(!value.isEmpty() ){
         value = "8:0 " + value ;
         GenericDriver.SetValue(containerId,CgroupStructure.blkio_subsystem,CgroupStructure.blkio_read,value) ;
+        }
     }
 
     public static void setWriteValue(String containerId, String value) {
-        value = "8:0 " + value ;
-        GenericDriver.SetValue(containerId,CgroupStructure.blkio_subsystem,CgroupStructure.blkio_write,value) ;
-    }
+        if(!value.isEmpty() ){
+            value = "8:0 " + value ;
+            GenericDriver.SetValue(containerId,CgroupStructure.blkio_subsystem,CgroupStructure.blkio_write,value) ;
+        } }
 
 
 }

@@ -1,7 +1,6 @@
 package org.kevoree.docker.containerdriver.cgroupDriver;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -32,18 +31,17 @@ public class GenericDriver {
     public static void SetValue(String ContainerId, String Subsystem, String file,String Value){
 
         String fileUri = CgroupStructure.cGroupURI + "/" + Subsystem + "/docker/" + ContainerId + "/" + file;
-
+        DataOutputStream os = null;
         String value = "";
-        File f = new File(fileUri) ;
-        if(f.canRead())
-        {
-            try {
-                Files.write(Paths.get(f.toURI()), value.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            Process p ;
+            p = Runtime.getRuntime().exec("su");
+            os = new DataOutputStream(p.getOutputStream());
+            os.writeBytes("echo '"+Value + "' > " + fileUri );
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
     }
-
 }
