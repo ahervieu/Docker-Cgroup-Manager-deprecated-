@@ -285,4 +285,23 @@ public class DockerClientImpl implements DockerClient {
         return mapper;
     }
 
+    @Override
+    public void exec(String id, ExecConfig exec) throws DockerException, JSONException {
+        try {
+            ObjectMapper mapper = build();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(baos);
+            mapper.writeValue(osw, exec);
+
+            JSONResource res = this.resty.json(this.url + String.format(DockerApi.EXEC_CONTAINER, id), content(baos.toByteArray()));
+            System.out.println(this.url + String.format(DockerApi.EXEC_CONTAINER, id));
+            System.out.println(res.toObject().toString());
+           // return mapper.readValue(res.toObject().toString(), ContainerInfo.class);
+
+        } catch (IOException e) {
+            throw new DockerException(e.getMessage());
+        }
+    }
+
+
 }

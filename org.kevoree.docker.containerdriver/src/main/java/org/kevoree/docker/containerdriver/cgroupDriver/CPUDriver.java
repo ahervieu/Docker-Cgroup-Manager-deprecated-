@@ -16,14 +16,18 @@ public class CPUDriver {
     }
 
     public static String getFreqValue(String containerId) {
-        if(freq == null)  {
-            freq = getFreq();
-        }
+
         String value  = GenericDriver.ReadValue(containerId,CgroupStructure.cpu_subsystem,CgroupStructure.cpu_cfs_quota) ;
-        if(!value.isEmpty())   {
-            Double time = Double.valueOf(value);
-            Double cpu_req =  time * freq / 100000;
-            return String.valueOf(cpu_req) ;
+        if(value.contains("-1")){
+            return value ;
+        }else  if(!value.isEmpty())   {
+            value = value.trim();
+            int time = Integer.valueOf(value) ;
+            if(time > 100){
+                time = 100 ;
+            }
+            time = time/ 10000;
+            return String.valueOf(time) ;
         }else
         {
         return  "" ;
@@ -35,46 +39,12 @@ public class CPUDriver {
     }
 
     public static void setFreqValue(String containerId, String value) {
-        if(freq == null)  {
-            freq = getFreq();
+
+        if(!value.isEmpty())   {
+        int time = Integer.valueOf(value) * 10000 ;
+            GenericDriver.SetValue(containerId,CgroupStructure.cpu_subsystem,CgroupStructure.cpu_cfs_period,"1000000") ;
+        GenericDriver.SetValue(containerId,CgroupStructure.cpu_subsystem,CgroupStructure.cpu_cfs_quota,String.valueOf(time)) ;
         }
-            Double cpu_req = Double.parseDouble(value);
-
-            // CGroup requires a time in micro second ;
-            if(  cpu_req < freq ){
-             Double time =  (cpu_req/freq) * 100000 ;
-                GenericDriver.SetValue(containerId,CgroupStructure.cpu_subsystem,CgroupStructure.cpu_cfs_quota,String.valueOf(time.intValue())) ;
-            }
-    }
-
-
-    private static double getFreq(){
-        File cpuInfo = new File("/proc/cpuinfo") ;
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(cpuInfo));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        String line = null;
-        String cpu_freq ="";
-        boolean stop = false ;
-        try {
-            while ((line = br.readLine()) != null && !stop) {
-
-                if (line.contains("cpu MHz")) {
-                    stop = true ;
-                    cpu_freq = line ;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        cpu_freq = cpu_freq.replaceAll("[^\\d.]", "");
-        return  Double.parseDouble(cpu_freq);
-
-
     }
 
 }

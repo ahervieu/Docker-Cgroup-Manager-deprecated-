@@ -10,10 +10,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
 import org.kevoree.docker.containerdriver.cgroupDriver.BlkioDriver;
 import org.kevoree.docker.containerdriver.cgroupDriver.CPUDriver;
 import org.kevoree.docker.containerdriver.cgroupDriver.MemoryDriver;
+import org.kevoree.docker.containerdriver.cgroupDriver.NetworkDriver;
 import org.kevoree.docker.containerdriver.client.DockerClientImpl;
 import org.kevoree.docker.containerdriver.client.DockerException;
 import org.kevoree.docker.containerdriver.model.Container;
@@ -72,6 +74,7 @@ public class ContainerDriverController implements Initializable {
 
     private ContainerDetail getCurrentContainer()
     {
+
         ContainerDetail  currContainer = null ;
         try {
             currContainer  =  dci.getContainer(dockerContainers.getSelectionModel().getSelectedItem());
@@ -103,7 +106,7 @@ public class ContainerDriverController implements Initializable {
     try {
         List<Container> lstCon   = dci.getContainers();
         for (Container container : lstCon) {
-            containerNameList.add(container.getNames()[0]);
+            containerNameList.add(container.getNames()[0].replace("/",""));
         }
 
     } catch (DockerException e) {
@@ -120,16 +123,18 @@ public class ContainerDriverController implements Initializable {
     if(!dockerContainers.getItems().isEmpty())
     {
         dockerContainers.getSelectionModel().select(0);
+
         refreshContainerView() ;
     }
     }
 
     private void refreshContainerView() {
-        ContainerDetail currContainer = null;
 
-            currContainer = getCurrentContainer() ;
-            ContainerConfig currConf = currContainer.getConfig();
+        ContainerDetail currContainer = getCurrentContainer() ;
+        if(currContainer != null) {
+        ContainerConfig currConf = currContainer.getConfig();
 
+        attachToolTip();
 
         io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
         io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
@@ -140,13 +145,16 @@ public class ContainerDriverController implements Initializable {
         maxMem.setText(MemoryDriver.getMaxMemValue(currContainer.getId()));
         swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
 
+        }else{
 
+            populateUI() ;
+        }
     }
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        NetworkDriver.addIpTableRule() ;
         if(!isRoot())
         {
             System.err.println("Root access is necessary to perform operations");
@@ -157,11 +165,39 @@ public class ContainerDriverController implements Initializable {
         dockerContainers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
                 refreshContainerView() ;
             }
         });
-
         populateUI();
+    }
+
+    private void attachToolTip()
+    {
+        Tooltip io_wrt_tt = new Tooltip( );
+
+        io_wrt_tt.setText(ToolTipDescriptor.blkio_throttle_write_descriptor);
+        io_write.setTooltip(io_wrt_tt);
+
+        Tooltip io_rd_tt = new Tooltip( );
+        io_rd_tt.setText(ToolTipDescriptor.blkio_throttle_read_descriptor);
+        io_read.setTooltip(io_rd_tt);
+
+        Tooltip cpu_number_tt = new Tooltip( );
+        cpu_number_tt.setText(ToolTipDescriptor.cpuset_cpus_descriptor);
+        cpu_number.setTooltip(cpu_number_tt);
+
+        Tooltip freq_tt = new Tooltip( );
+        freq_tt.setText(ToolTipDescriptor.cpf_quota_us_descriptor);
+        freq.setTooltip(freq_tt);
+
+        Tooltip maxMem_tt = new Tooltip( );
+        maxMem_tt.setText(ToolTipDescriptor.memory_max_mem_descriptor);
+        maxMem.setTooltip(maxMem_tt);
+
+        Tooltip swap_tt = new Tooltip( );
+        swap_tt.setText(ToolTipDescriptor.memory_swap_descriptor);
+        swap.setTooltip(swap_tt);
 
 
     }

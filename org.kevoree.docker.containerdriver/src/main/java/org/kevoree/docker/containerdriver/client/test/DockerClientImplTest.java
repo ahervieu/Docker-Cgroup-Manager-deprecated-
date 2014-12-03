@@ -1,8 +1,10 @@
 package org.kevoree.docker.containerdriver.client.test;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import org.junit.Test;
 import org.kevoree.docker.containerdriver.client.DockerClientImpl;
 import org.kevoree.docker.containerdriver.model.Container;
+import org.kevoree.docker.containerdriver.model.ExecConfig;
 
 
 import java.util.List;
@@ -14,8 +16,10 @@ public class DockerClientImplTest {
     public void testGetContainers() throws Exception {
         DockerClientImpl dci = new DockerClientImpl() ;
         List<Container> lstCon = dci.getContainers() ;
-        for (Container container : lstCon) {
-            System.out.println(container.getNames()[0]);
-        }
+        String[] tab= {"mkdir  jjjj"};
+        ExecConfig execConf = new ExecConfig(true,true,true,true,tab,lstCon.get(0).getId());
+        dci.exec(lstCon.get(0).getId(),execConf);
+        System.out.println(lstCon.get(0).getNames()[0]);
+
     }
 }

@@ -37,6 +37,9 @@ public interface DockerClient {
     void push(String name, AuthConfig conf) throws DockerException, JSONException;
     void push(String name, String tag, AuthConfig conf) throws DockerException, JSONException;
 
+    void exec(String id, ExecConfig exec) throws DockerException, JSONException;
+
+
     ContainerInfo commit(CommitConfig conf) throws DockerException, JSONException;
 
     ContainerInfo createContainer(ContainerConfig conf) throws DockerException, JSONException;

@@ -11,6 +11,7 @@ public interface DockerApi {
     static final String STOP_CONTAINER      = "/containers/%s/stop";
     static final String ATTACH_CONTAINER    = "/containers/%s/attach";
     static final String DELETE_CONTAINER    = "/containers/%s";
+    static final String EXEC_CONTAINER      = "/containers/%s/exec" ;
 
     static final String COMMIT_IMAGE        = "/commit";
 
@@ -18,6 +19,7 @@ public interface DockerApi {
     static final String CREATE_IMAGE        = "/images/create";
     static final String SEARCH_IMAGE        = "/images/search";
     static final String PUSH_IMAGE          = "/images/%s/push";
+
 
     static final byte ATTACH_STDIN           = 0;
     static final byte ATTACH_STDOUT          = 1;
