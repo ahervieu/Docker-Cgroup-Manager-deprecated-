@@ -14,14 +14,11 @@ public class BlkioDriver {
 
 
     public static String getWriteValue(String containerId) {
-
        String value = GenericDriver.ReadValue(containerId,CgroupStructure.blkio_subsystem,CgroupStructure.blkio_write) ;
-
                 if(!value.isEmpty())
                 {
                     value = value.split(" ")[1] ;
                 }
-
         return value ;
     }
 

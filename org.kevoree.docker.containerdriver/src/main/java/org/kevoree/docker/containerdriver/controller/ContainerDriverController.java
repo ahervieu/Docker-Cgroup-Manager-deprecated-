@@ -26,6 +26,7 @@ import us.monoid.json.JSONException;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -53,6 +54,7 @@ public class ContainerDriverController implements Initializable {
     @FXML private ListView<String> dockerContainers ;
     @FXML private TextField server;
 
+///    private LinkedList
     private DockerClientImpl dci ;
 
     @FXML
@@ -143,7 +145,7 @@ public class ContainerDriverController implements Initializable {
         freq.setText(CPUDriver.getFreqValue(currContainer.getId()));
 
         maxMem.setText(MemoryDriver.getMaxMemValue(currContainer.getId()));
-        swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
+       swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
 
         }else{
 
@@ -154,7 +156,7 @@ public class ContainerDriverController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        NetworkDriver.addIpTableRule() ;
+    //    NetworkDriver.addIpTableRule() ;
         if(!isRoot())
         {
             System.err.println("Root access is necessary to perform operations");

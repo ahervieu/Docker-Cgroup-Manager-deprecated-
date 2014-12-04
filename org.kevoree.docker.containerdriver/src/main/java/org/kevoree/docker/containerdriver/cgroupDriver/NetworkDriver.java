@@ -14,88 +14,68 @@ import java.util.regex.Pattern;
 public class NetworkDriver {
 
 
-    public static void setIncomingTraffic(String bridge, int traffic)
-    {
+    private static void execCmd(String cmd)  {
         try {
-            DataOutputStream os = null;
-            Process p ;
-            p = Runtime.getRuntime().exec("su");
-            os = new DataOutputStream(p.getOutputStream());
-            os.writeBytes(" sudo tc qdisc del dev "+bridge+" root netem rate " + traffic);
-            os.writeBytes(" sudo tc qdisc add dev "+bridge+" root netem rate " + traffic);
-            os.flush();
-            os.close();
+        DataOutputStream os = null;
+        Process p ;
+        p = Runtime.getRuntime().exec("su");
+        os = new DataOutputStream(p.getOutputStream());
+        os.writeBytes(cmd);
+        os.flush();
+        os.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+
+    public static void setIncomingTraffic(String bridge, int traffic)
+    {
+        execCmd(" sudo tc qdisc del dev "+bridge+" root netem rate " + traffic) ;
+        execCmd(" sudo tc qdisc add dev "+bridge+" root netem rate " + traffic) ;
     }
 
     public static void setIncomingCorruptionRate(String bridge, int rate)
     {
-        try {
-            DataOutputStream os = null;
-            Process p ;
-            p = Runtime.getRuntime().exec("su");
-            os = new DataOutputStream(p.getOutputStream());
-            os.writeBytes(" sudo tc qdisc del dev "+bridge+" root netem corrupt " + rate+"%");
-            os.writeBytes(" sudo tc qdisc add dev "+bridge+" root netem corrupt " + rate+"%");
-            os.flush();
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        execCmd(" sudo tc qdisc del dev "+bridge+" root netem corrupt " + rate+"%");
+        execCmd(" sudo tc qdisc add dev "+bridge+" root netem corrupt " + rate+"%");
     }
 
     public static void setIncomingLossRate(String bridge, int rate)
     {
-        try {
-            DataOutputStream os = null;
-            Process p ;
-            p = Runtime.getRuntime().exec("su");
-            os = new DataOutputStream(p.getOutputStream());
-            os.writeBytes(" sudo tc qdisc del dev "+bridge+" root netem loss " + rate+"%");
-            os.writeBytes(" sudo tc qdisc add dev "+bridge+" root netem loss " + rate+"%");
-            os.flush();
-            os.close();
-        } catch (IOException e) {
-
-        }
+        execCmd(" sudo tc qdisc del dev "+bridge+" root netem loss " + rate+"%");
+        execCmd(" sudo tc qdisc add dev "+bridge+" root netem loss " + rate+"%");
     }
 
     public static void setIncomingDelay(String bridge, int delay)
     {
-        try {
-            DataOutputStream os = null;
-            Process p ;
-            p = Runtime.getRuntime().exec("su");
-            os = new DataOutputStream(p.getOutputStream());
-            os.writeBytes(" sudo tc qdisc del dev "+bridge+" root netem delay " + delay+"ms");
-            os.writeBytes(" sudo tc qdisc add dev "+bridge+" root netem delay " + delay+"ms");
-            os.flush();
-            os.close();
-        } catch (IOException e) {
-
-        }
+        execCmd(" sudo tc qdisc del dev "+bridge+" root netem delay " + delay+"ms");
+        execCmd(" sudo tc qdisc add dev "+bridge+" root netem delay " + delay+"ms");
     }
 
     public static void setOutgoingTraffic(String containerId, int traffic)
     {
-
+        execCmd(" sudo docker exec "+containerId+" tc qdisc del dev eth0 root netem rate " + traffic);
+        execCmd(" sudo docker exec "+containerId+" tc qdisc all dev eth0 root netem rate " + traffic);
     }
 
     public static void setOutgoingCorruptionRate(String containerId, int rate)
     {
-
+        execCmd(" sudo docker exec "+containerId+" tc qdisc del dev eth0 root corrupt " + rate);
+        execCmd(" sudo docker exec "+containerId+" tc qdisc all dev eth0 root corrupt " + rate);
     }
 
     public static void setOutgoingLossRate(String containerId, int rate)
     {
-
+        execCmd(" sudo docker exec "+containerId+" tc qdisc del dev eth0 root loss " + rate);
+        execCmd(" sudo docker exec "+containerId+" tc qdisc all dev eth0 root loss " + rate);
     }
 
     public static void setOutgoingDelay(String containerId, int delay)
     {
-
+        execCmd(" sudo docker exec "+containerId+" tc qdisc del dev eth0 root delay " + delay+"ms");
+        execCmd(" sudo docker exec "+containerId+" tc qdisc all dev eth0 root delay " + delay+"ms");
     }
 
     public static void addIpTableRule()
@@ -113,7 +93,6 @@ public class NetworkDriver {
             e.printStackTrace();
         }
     }
-
 
     // http://stackoverflow.com/questions/21724225/docker-how-to-get-veth-bridge-interface-pair-easily
 
