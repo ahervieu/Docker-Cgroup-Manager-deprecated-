@@ -1,5 +1,7 @@
 package org.kevoree.docker.containerdriver.controller;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
+import javafx.beans.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -7,11 +9,10 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.Region;
+import javafx.util.Callback;
+import org.kevoree.docker.containerdriver.ContainerDriverFactory;
 import org.kevoree.docker.containerdriver.cgroupDriver.BlkioDriver;
 import org.kevoree.docker.containerdriver.cgroupDriver.CPUDriver;
 import org.kevoree.docker.containerdriver.cgroupDriver.MemoryDriver;
@@ -21,14 +22,14 @@ import org.kevoree.docker.containerdriver.client.DockerException;
 import org.kevoree.docker.containerdriver.model.Container;
 import org.kevoree.docker.containerdriver.model.ContainerConfig;
 import org.kevoree.docker.containerdriver.model.ContainerDetail;
+import org.kevoree.docker.containerdriver.model.CustomContainerDetail;
 import us.monoid.json.JSONException;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.Observable;
+import java.util.stream.Stream;
 
 /**
  * Created by aymeric on 25/11/14.
@@ -51,17 +52,23 @@ public class ContainerDriverController implements Initializable {
     @FXML public TextField io_read;
     @FXML public TextField io_write;
 
-    @FXML private ListView<String> dockerContainers ;
+    @FXML private ListView<CustomContainerDetail> dockerContainers ;
     @FXML private TextField server;
 
-///    private LinkedList
+    private ObservableList<CustomContainerDetail> CCD ;
+   // private ObservableList<CustomContainerDetail> observableList ;
+
     private DockerClientImpl dci ;
+
+    private ContainerDriverFactory factory  ;
 
     @FXML
     private void handleButtonApply() {
         if(true)
         {
         ContainerDetail  currContainer = getCurrentContainer();
+            if(currContainer != null)
+            {
 
         BlkioDriver.setWriteValue(currContainer.getId(),io_write.getText());
         BlkioDriver.setReadValue(currContainer.getId(),io_read.getText());
@@ -72,14 +79,19 @@ public class ContainerDriverController implements Initializable {
         MemoryDriver.setMaxMemValue(currContainer.getId(), maxMem.getText());
         MemoryDriver.setSwapValue(currContainer.getId(), swap.getText());
         }
+        }
     }
 
     private ContainerDetail getCurrentContainer()
     {
 
         ContainerDetail  currContainer = null ;
+      
         try {
-            currContainer  =  dci.getContainer(dockerContainers.getSelectionModel().getSelectedItem());
+        if(dockerContainers.getSelectionModel().getSelectedItem() != null ){
+       currContainer  =  dci.getContainer(dockerContainers.getSelectionModel().getSelectedItem().getContainer().getName());
+        }
+
         } catch (DockerException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -93,17 +105,95 @@ public class ContainerDriverController implements Initializable {
     @FXML
     private void refreshServer() {
         dci = new DockerClientImpl(server.getText()) ;
-        populateUI() ;
+        updateCustomContainerDetailList() ;
     }
 
     @FXML
     private void refreshServerKey() {
         dci = new DockerClientImpl(server.getText()) ;
-        populateUI() ;
+        updateCustomContainerDetailList() ;
     }
 
+    /*
+
+    Check if there are new containers
+    Check if some containers disapeard
+    update the view
+    handle selection
+     */
+
+    private void updateCustomContainerDetailList()
+    {
+        String currentSelectedContainer = "" ;
+        if(dockerContainers.getSelectionModel().getSelectedItem() != null)
+        {
+            currentSelectedContainer = dockerContainers.getSelectionModel().getSelectedItem().getContainer().getName() ;
+        }
+
+
+        //Updating ContainerList
+        // removing Container that are no more available
+        try {
+
+            List<Container> lstCon   = dci.getContainers();
+           // Check that all current container in the app are still active
+
+            for (CustomContainerDetail customContainerDetail : CCD) {
+                boolean stop = false ;
+                for (int i = 0; i < lstCon.size() && !stop ; i++) {
+                    Container currContain = lstCon.get(i);
+                    if(currContain.getId().equals(customContainerDetail.getContainer().getId()))
+                    {
+                        stop = true ;
+                    }
+                }
+                if(!stop)  {
+               //    CCD.remove(customContainerDetail);
+                   CCD.remove(customContainerDetail) ;
+
+
+
+            //        dockerContainers.
+
+                }
+            }
+
+         // Check if there are new container
+            // adding new container
+            for (Container container : lstCon) {
+                boolean found = false ;
+                for (int i = 0; i < CCD.size() && !found; i++) {
+                    CustomContainerDetail currContainDetail = CCD.get(i);
+                    if(container.getId().equals(currContainDetail.getContainer().getId()))
+                    {
+                        found = true ;
+                    }
+                }
+                if(!found)
+                {
+                    CCD.add(factory.createCustomContainerDetail(dci.getContainer(container.getId())));
+                }
+            }
+
+            forceListRefreshOn(dockerContainers) ;
+           // CCD.remove()  ;
+
+            //Updating the view
+
+
+
+            refreshContainerView() ;
+
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void populateUI() {
+
+        /*
     List<String> containerNameList = new ArrayList<String>();
     try {
         List<Container> lstCon   = dci.getContainers();
@@ -119,25 +209,26 @@ public class ContainerDriverController implements Initializable {
         System.err.println("Json Parsing Error");
         e.printStackTrace();
     }
+*/
+        //pdateCustomContainerDetailList() ;
 
-    ObservableList<String> observableList = FXCollections.observableArrayList(containerNameList);
-    dockerContainers.setItems(observableList);
-    if(!dockerContainers.getItems().isEmpty())
-    {
-        dockerContainers.getSelectionModel().select(0);
 
-        refreshContainerView() ;
+
     }
+
+    private <T> void forceListRefreshOn(ListView<T> lsv) {
+        ObservableList<T> items = lsv.<T>getItems();
+        lsv.<T>setItems(null);
+        lsv.<T>setItems(items);
     }
+
+
 
     private void refreshContainerView() {
-
         ContainerDetail currContainer = getCurrentContainer() ;
         if(currContainer != null) {
         ContainerConfig currConf = currContainer.getConfig();
-
         attachToolTip();
-
         io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
         io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
 
@@ -145,33 +236,62 @@ public class ContainerDriverController implements Initializable {
         freq.setText(CPUDriver.getFreqValue(currContainer.getId()));
 
         maxMem.setText(MemoryDriver.getMaxMemValue(currContainer.getId()));
-       swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
+        swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
 
-        }else{
 
-            populateUI() ;
-        }
+    }
     }
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-    //    NetworkDriver.addIpTableRule() ;
+        factory = new ContainerDriverFactory() ;
         if(!isRoot())
         {
             System.err.println("Root access is necessary to perform operations");
         }
-
+     //   dockerContainers = new ListView<>();
         dci = new DockerClientImpl(server.getText()) ;
+        CCD = FXCollections.observableArrayList();
+        dockerContainers.setItems(CCD);
+        if(!CCD.isEmpty())
+        {
+            dockerContainers.getSelectionModel().select(0);
+        }
 
-        dockerContainers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+       dockerContainers.setCellFactory(new Callback<ListView<CustomContainerDetail>, ListCell<CustomContainerDetail>>() {
             @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+            public ListCell<CustomContainerDetail> call(ListView<CustomContainerDetail> param) {
+                ListCell<CustomContainerDetail> cell = new ListCell<CustomContainerDetail>() {
+                    @Override
+                    protected void updateItem(CustomContainerDetail t, boolean bln) {
+                        super.updateItem(t, bln);
 
-                refreshContainerView() ;
+                        if (t != null && !bln) {
+                           setText(t.nameProperty().getValue().replace("/",""));
+                        }else{
+                            setText(null);
+                        }
+                    }
+                };
+
+                return cell;
+            }});
+
+ /*       dockerContainers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<CustomContainerDetail>() {
+            @Override
+            public void changed(ObservableValue<? extends CustomContainerDetail> observable, CustomContainerDetail oldValue, CustomContainerDetail newValue) {
+                System.out.println(dockerContainers.getSelectionModel().getSelectedItem().nameProperty().getValue());
+                updateCustomContainerDetailList() ;
             }
-        });
-        populateUI();
+        }
+        );*/
+//        NetworkDriver.addIpTableRule() ;
+        updateCustomContainerDetailList() ;
+
+
+
+
     }
 
     private void attachToolTip()

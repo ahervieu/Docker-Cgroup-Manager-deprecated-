@@ -90,6 +90,10 @@ public class NetworkDriver {
             os.flush();
             os.close();
         } catch (IOException e) {
+            if(e.getMessage().contains("pipe"))
+            {
+                System.out.println("Please start the application as sudo");
+            }
             e.printStackTrace();
         }
     }

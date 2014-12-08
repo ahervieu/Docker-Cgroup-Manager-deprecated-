@@ -19,7 +19,7 @@ import org.kevoree.docker.containerdriver.cgroupDriver.CgroupStructure ;
         String res = "" ;
         if(f.canRead()){
         try {
-          res =    new String(Files.readAllBytes(Paths.get(CgroupStructure.cGroupURI + "/" + subsystem + "/docker/" + Id + "/" + fileName))) ;
+          res = new String(Files.readAllBytes(Paths.get(CgroupStructure.cGroupURI + "/" + subsystem + "/docker/" + Id + "/" + fileName))) ;
         } catch (IOException e) {
             System.err.println("Unable to read file " + fileName);
             e.printStackTrace();

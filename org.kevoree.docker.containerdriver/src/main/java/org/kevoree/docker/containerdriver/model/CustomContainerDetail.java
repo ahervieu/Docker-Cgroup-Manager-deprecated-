@@ -1,5 +1,9 @@
 package org.kevoree.docker.containerdriver.model;
 
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.util.Callback;
 import org.kevoree.docker.containerdriver.cgroupDriver.NetworkDriver;
 
 /**
@@ -9,21 +13,48 @@ public class CustomContainerDetail {
 
 
     private ContainerDetail container ;
-    private String bridge ;
+    private String bridge = "" ;
     private int incomingTraffic ;
     private int outgoingTraffic ;
     private int corruptionRate ;
     private int lossRate ;
     private int delayRate ;
-    private Thread t ;
+    private SimpleStringProperty idProperty ;
+    private SimpleStringProperty nameProp ;
 
     public CustomContainerDetail(ContainerDetail container) {
-        this.container = container;
-        BridgeAcquisition ba = new BridgeAcquisition() ;
-        t = new Thread(ba);
+        idProperty = new SimpleStringProperty() ;
+        idProperty.setValue(container.getId());
+        nameProp = new SimpleStringProperty();
+        nameProp.setValue(container.getName());
+        System.out.println(nameProp.getValue());
+        this.container = container ;
+    }
+
+    public SimpleStringProperty nameProperty() {
+        return nameProp;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        final CustomContainerDetail other = (CustomContainerDetail) obj;
+        return (other.getContainer().getId().equals(this.getContainer().getId()));
     }
 
 
+    public String getId(){
+        return  idProperty.getValue();
+    }
+
+    public void  setId(String _id){
+          idProperty.setValue(_id);
+    }
+
+    public SimpleStringProperty idPropertyProperty() {
+        return idProperty;
+    }
 
     public ContainerDetail getContainer() {
         return container;
@@ -34,16 +65,11 @@ public class CustomContainerDetail {
     }
 
     public String getBridge() {
-        if(!t.isAlive()) {
-        return bridge;
-        }else{
-            return "" ;
-        }
-
+         return bridge;
     }
 
-    private void setBridge() {
-
+    public void setBridge(String bridge) {
+        this.bridge = bridge;
     }
 
     public int getIncomingTraffic() {
@@ -86,14 +112,8 @@ public class CustomContainerDetail {
         this.delayRate = delayRate;
     }
 
-    class BridgeAcquisition implements Runnable{
-
-       // private String bridge ;
-
-
-        @Override
-        public void run() {
-            bridge =  NetworkDriver.getContainerBridge(container.getNetworkSettings().getIpAddress());
-        }
+    public static Callback<CustomContainerDetail, Observable[]> extractor() {
+        return (CustomContainerDetail p) -> new Observable[]{p.nameProperty()};
     }
+
 }

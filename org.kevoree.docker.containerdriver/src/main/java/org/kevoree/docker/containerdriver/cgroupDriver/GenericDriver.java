@@ -23,13 +23,13 @@ public class GenericDriver {
                 e.printStackTrace();
             }
         }
-        System.out.println("Reading value : " + ContainerId + "," + Subsystem + "," +  file +"," + value ) ;
+        System.out.println("Reading value : " + ContainerId + " /" + Subsystem + "/" +  file +" : " + value ) ;
         return value ;
     }
 
 
     public static void SetValue(String ContainerId, String Subsystem, String file,String Value){
-        System.out.println("Setting value : " + ContainerId + "," + Subsystem + "," +  file +"," + Value ) ;
+        System.out.println("Reading value : " + ContainerId + " /" + Subsystem + "/" +  file +" : " + Value) ;
         String fileUri = CgroupStructure.cGroupURI + "/" + Subsystem + "/docker/" + ContainerId + "/" + file;
         DataOutputStream os = null;
         String value = "";
