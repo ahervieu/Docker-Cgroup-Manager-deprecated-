@@ -7,7 +7,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.jetbrains.annotations.NotNull;
 import org.kevoree.docker.containerdriver.cgroupDriver.CgroupStructure ;
 
 /**
@@ -15,7 +14,7 @@ import org.kevoree.docker.containerdriver.cgroupDriver.CgroupStructure ;
  */
  public class  CGroupReader {
 
-    @NotNull
+
     public static String readInfo(String subsystem, String fileName ,String Id) {
         File f = new File(CgroupStructure.cGroupURI + "/" + subsystem + "/docker/" + Id + "/" + fileName) ;
         String res = "" ;

@@ -2,7 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
+
 
 /**
  *
@@ -62,7 +62,7 @@ public class Image {
         return repo;
     }
 
-    @NotNull
+
     public String[] getTags() {
         String[] tags = new String[repoTags.length];
         for (int i=0; i < tags.length; i++) {
@@ -71,7 +71,7 @@ public class Image {
         return tags;
     }
 
-    @NotNull
+
     @Override
     public String toString() {
         return "Image {id="+id+", repo="+getRepo()+", nbTags="+getTags().length+", created="+created+", parentId="+parentId+", size="+size+", virtualSize="+virtualSize+"}";

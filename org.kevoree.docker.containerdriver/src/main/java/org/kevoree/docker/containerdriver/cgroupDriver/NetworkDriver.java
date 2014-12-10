@@ -20,7 +20,7 @@ public class NetworkDriver {
             Process p ;
         p = Runtime.getRuntime().exec("su");
         os = new DataOutputStream(p.getOutputStream());
- BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             os.writeBytes(cmd);
         os.flush();
         os.close();

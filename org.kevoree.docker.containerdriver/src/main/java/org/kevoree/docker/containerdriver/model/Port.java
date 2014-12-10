@@ -2,7 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
+
 
 /**
  *
@@ -22,7 +22,7 @@ public class Port {
     @JsonProperty("IP")
     public String ip;
 
-    @NotNull
+
     @Override
     public String toString() {
         return "Port{" + "privatePort=" + privatePort + ", publicPort=" + publicPort + ", type=" + type + ", ip=" + ip + '}';

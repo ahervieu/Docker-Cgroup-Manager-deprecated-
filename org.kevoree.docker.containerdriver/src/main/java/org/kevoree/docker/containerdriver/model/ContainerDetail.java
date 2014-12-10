@@ -2,7 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Map;
 
@@ -194,7 +194,7 @@ public class ContainerDetail {
         this.appArmorProfile = appArmorProfile;
     }
 
-    @NotNull
+
     @Override
     public String toString() {
         return "ContainerDetail{" + "id=" + id + ", created=" + created + ", path=" + path + ", args=" + args + ", config=" + config + ", state=" + state + ", image=" + image + ", networkSettings=" + networkSettings +  ", resolvConfPath=" + resolvConfPath + ", volumes=" + volumes + ", volumesRW=" + volumesRW +", hostnamePath=" + hostnamePath + ", hostsPath=" + hostsPath + ", name=" + name + ", drive=" + drive + ", execDriver="+execDriver+"}";

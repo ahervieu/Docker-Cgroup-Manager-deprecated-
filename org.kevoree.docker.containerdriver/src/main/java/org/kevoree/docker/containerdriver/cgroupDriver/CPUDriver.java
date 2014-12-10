@@ -1,6 +1,6 @@
 package org.kevoree.docker.containerdriver.cgroupDriver;
 
-import org.jetbrains.annotations.NotNull;
+
 
 /**
  * Created by aymeric on 28/11/14.
@@ -36,7 +36,7 @@ public class CPUDriver {
         GenericDriver.SetValue(containerId,CgroupStructure.cpuset_subsystem,"cpuset.cpus",value) ;
     }
 
-    public static void setFreqValue(String containerId, @NotNull String value) {
+    public static void setFreqValue(String containerId, String value) {
         if(!value.isEmpty())   {
         int time = Integer.valueOf(value) * 10000 ;
             GenericDriver.SetValue(containerId,CgroupStructure.cpu_subsystem,"cpu.cfs_period_us","1000000") ;

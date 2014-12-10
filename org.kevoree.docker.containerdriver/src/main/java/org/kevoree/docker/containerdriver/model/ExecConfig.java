@@ -1,7 +1,7 @@
 package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Arrays;
 
@@ -74,7 +74,7 @@ public class ExecConfig {
         this.container = container;
     }
 
-    @NotNull
+
     @Override
     public String toString() {
         return "ExecConfig{" +

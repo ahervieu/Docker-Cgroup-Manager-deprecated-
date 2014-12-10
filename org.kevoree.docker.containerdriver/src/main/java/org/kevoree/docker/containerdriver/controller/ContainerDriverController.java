@@ -1,17 +1,15 @@
 package org.kevoree.docker.containerdriver.controller;
 
 
-import javafx.beans.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Region;
 import javafx.util.Callback;
+import javafx.util.converter.NumberStringConverter;
 import org.kevoree.docker.containerdriver.ContainerDriverFactory;
 import org.kevoree.docker.containerdriver.cgroupDriver.BlkioDriver;
 import org.kevoree.docker.containerdriver.cgroupDriver.CPUDriver;
@@ -28,8 +26,7 @@ import us.monoid.json.JSONException;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
-import java.util.Observable;
-import java.util.stream.Stream;
+
 
 /**
  * Created by aymeric on 25/11/14.
@@ -80,30 +77,56 @@ public class ContainerDriverController implements Initializable {
             CustomContainerDetail currContainer = getCurrentContainer();
             if (currContainer != null) {
 
-                BlkioDriver.setWriteValue(currContainer.getId(), io_write.getText());
-                BlkioDriver.setReadValue(currContainer.getId(), io_read.getText());
-
+                if(StringParsingUtils.isInteger( io_write.getText())) {
+                    BlkioDriver.setWriteValue(currContainer.getId(), io_write.getText());
+                }
+                if(StringParsingUtils.isInteger( io_read.getText())) {
+                    BlkioDriver.setReadValue(currContainer.getId(), io_read.getText());
+                }
                 CPUDriver.setCPUValue(currContainer.getId(), cpu_number.getText());
-                CPUDriver.setFreqValue(currContainer.getId(), freq.getText());
 
-                MemoryDriver.setMaxMemValue(currContainer.getId(), maxMem.getText());
-                MemoryDriver.setSwapValue(currContainer.getId(), swap.getText());
+                if(StringParsingUtils.isInteger( freq.getText())) {
+                    CPUDriver.setFreqValue(currContainer.getId(), freq.getText());
+                }
+
+
+                    MemoryDriver.setMaxMemValue(currContainer.getId(), maxMem.getText());
+
+
+                    MemoryDriver.setSwapValue(currContainer.getId(), swap.getText());
+
+
+
+                //Setting value in the model
+
                 if (currContainer.getBridge().isEmpty()) {
                     System.err.println("Unable to retrieve bridge of docker node");
                 } else {
-                    NetworkDriver.setIncomingCorruptionRate(currContainer.getBridge(), Integer.valueOf(corrupt_rate.getText()));
-                    NetworkDriver.setIncomingDelay(currContainer.getBridge(), Integer.valueOf(delay.getText()));
-                    NetworkDriver.setIncomingLossRate(currContainer.getBridge(), Integer.valueOf(loss_rate.getText()));
 
-                    NetworkDriver.setIncomingTraffic(currContainer.getBridge(), incoming_traffic.getText());
-                    NetworkDriver.setOutgoingTraffic(currContainer.getBridge(), outgoing_traffic.getText());
+                    if(StringParsingUtils.isInteger( corrupt_rate.getText())) {
+                        NetworkDriver.setIncomingCorruptionRate(currContainer.getBridge(), Integer.valueOf(corrupt_rate.getText()));
+                        currContainer.setCorruptionRate(Integer.valueOf(corrupt_rate.getText()));
+                    }
+                    if(StringParsingUtils.isInteger( delay.getText())) {
+                        NetworkDriver.setIncomingDelay(currContainer.getBridge(), Integer.valueOf(delay.getText()));
+                        currContainer.setDelayRate( Integer.valueOf(delay.getText()));
+                    }
 
-                    //Setting value in the model
-                    currContainer.setCorruptionRate(Integer.valueOf(corrupt_rate.getText()));
-                    currContainer.setDelayRate( Integer.valueOf(delay.getText()));
-                    currContainer.setLossRate(Integer.valueOf(loss_rate.getText()));
-                    currContainer.setIncomingTraffic(Integer.valueOf(incoming_traffic.getText()));
-                    currContainer.setOutgoingTraffic(Integer.valueOf(outgoing_traffic.getText()));
+                    if(StringParsingUtils.isInteger( loss_rate.getText())) {
+                        NetworkDriver.setIncomingLossRate(currContainer.getBridge(), Integer.valueOf(loss_rate.getText()));
+                        currContainer.setLossRate(Integer.valueOf(loss_rate.getText()));
+                    }
+
+                    if(StringParsingUtils.isInteger( incoming_traffic.getText())) {
+                        NetworkDriver.setIncomingTraffic(currContainer.getBridge(), incoming_traffic.getText());
+                        currContainer.setIncomingTraffic(Integer.valueOf(incoming_traffic.getText()));
+                    }
+
+                    if(StringParsingUtils.isInteger( outgoing_traffic.getText())) {
+                        NetworkDriver.setOutgoingTraffic(currContainer.getBridge(), outgoing_traffic.getText());
+                        currContainer.setOutgoingTraffic(Integer.valueOf(outgoing_traffic.getText()));
+                    }
+
 
                 }
             }
@@ -142,8 +165,8 @@ public class ContainerDriverController implements Initializable {
         //Updating ContainerList
         // removing Container that are no more available
         try {
-            List<CustomContainerDetail> ccd_to_rm = new ArrayList<>();
-            List<CustomContainerDetail> ccd_to_add = new ArrayList<>();
+            List<CustomContainerDetail> ccd_to_rm = new ArrayList<CustomContainerDetail>();
+            List<CustomContainerDetail> ccd_to_add = new ArrayList<CustomContainerDetail>();
             List<Container> lstCon = dci.getContainers();
             // Check that all current container in the app are still active
             for (CustomContainerDetail customContainerDetail : CCD) {
@@ -197,7 +220,7 @@ public class ContainerDriverController implements Initializable {
 
         if (currContainer != null) {
             ContainerConfig currConf = currContainer.getContainer().getConfig();
-            attachToolTip();
+
             io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
             io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
 
@@ -258,6 +281,7 @@ public class ContainerDriverController implements Initializable {
     }
 }
         );
+        attachToolTip();
 //
 
 

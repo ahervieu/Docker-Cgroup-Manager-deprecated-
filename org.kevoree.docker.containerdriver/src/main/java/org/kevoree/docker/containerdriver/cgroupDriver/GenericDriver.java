@@ -1,6 +1,6 @@
 package org.kevoree.docker.containerdriver.cgroupDriver;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,7 +11,7 @@ import java.nio.file.Paths;
  */
 public class GenericDriver {
 
-    @NotNull
+
     public static String ReadValue(String ContainerId, String Subsystem, String file){
 
        String fileUri = CgroupStructure.cGroupURI + "/" + Subsystem + "/docker/" + ContainerId + "/" + file;
@@ -32,17 +32,24 @@ public class GenericDriver {
 
 
     public static void SetValue(String ContainerId, String Subsystem, String file,String Value){
-        System.out.println("Reading value : " + ContainerId + " /" + Subsystem + "/" +  file +" : " + Value) ;
+        System.out.println("Setting value : " + ContainerId + " /" + Subsystem + "/" +  file +" : " + Value) ;
         String fileUri = CgroupStructure.cGroupURI + "/" + Subsystem + "/docker/" + ContainerId + "/" + file;
         DataOutputStream os = null;
+
         String value = "";
         try {
             Process p ;
             p = Runtime.getRuntime().exec("su");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             os = new DataOutputStream(p.getOutputStream());
             os.writeBytes("echo '"+Value + "' > " + fileUri );
             os.flush();
             os.close();
+            String line = "";
+            while((line = reader.readLine()) != null)
+            {
+                System.out.println(line);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

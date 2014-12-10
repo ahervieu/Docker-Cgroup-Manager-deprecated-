@@ -2,7 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
+
 
 /**
  * Created by aymeric on 26/11/14.
@@ -41,7 +41,7 @@ public class Device {
         this.pathInContainer = pathInContainer;
     }
 
-    @NotNull
+
     @Override
     public String toString() {
         return "Device{" +
