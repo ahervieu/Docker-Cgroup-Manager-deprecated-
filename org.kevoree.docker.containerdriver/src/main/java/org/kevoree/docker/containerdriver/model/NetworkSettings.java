@@ -2,6 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -74,6 +75,7 @@ public class NetworkSettings {
         this.ports = ports;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "NetworkSettings{" + "ipAddress=" + ipAddress + ", ipPrefixLen=" + ipPrefixLen + ", gateway=" + gateway + ", bridge=" + bridge + ", portMapping=" + portMapping + ", ports=" + ports + '}';

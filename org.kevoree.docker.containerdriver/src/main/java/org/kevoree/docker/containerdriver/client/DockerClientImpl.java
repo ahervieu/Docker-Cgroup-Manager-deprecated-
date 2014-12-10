@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kevoree.docker.containerdriver.model.*;
 import us.monoid.json.JSONArray;
 import us.monoid.json.JSONException;
@@ -27,7 +29,7 @@ public class DockerClientImpl implements DockerClient {
     private Resty resty;
     private String url;
 
-    public DockerClientImpl(String url) {
+    public DockerClientImpl(@NotNull String url) {
         this.resty = new Resty();
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 2);
@@ -97,7 +99,7 @@ public class DockerClientImpl implements DockerClient {
     }
 
     @Override
-    public List<Image> getImages(boolean all, String filters) throws DockerException, JSONException {
+    public List<Image> getImages(boolean all, @Nullable String filters) throws DockerException, JSONException {
         if (filters == null) {
             filters = "";
         }
@@ -150,7 +152,7 @@ public class DockerClientImpl implements DockerClient {
     }
 
     @Override
-    public ContainerInfo commit(CommitConfig conf) throws DockerException, JSONException {
+    public ContainerInfo commit(@NotNull CommitConfig conf) throws DockerException, JSONException {
         try {
             JSONResource res = this.resty.json(
                     this.url + DockerApi.COMMIT_IMAGE,
@@ -173,7 +175,7 @@ public class DockerClientImpl implements DockerClient {
     }
 
     @Override
-    public void pull(ImageConfig conf) throws DockerException, JSONException {
+    public void pull(@Nullable ImageConfig conf) throws DockerException, JSONException {
         if (conf == null) {
             conf = new ImageConfig();
         }
@@ -199,7 +201,7 @@ public class DockerClientImpl implements DockerClient {
     }
 
     @Override
-    public void push(String name, String tag, AuthConfig conf) throws DockerException, JSONException {
+    public void push(String name, @Nullable String tag, AuthConfig conf) throws DockerException, JSONException {
         if (tag == null || tag.length() == 0) {
             tag = "latest";
         }
@@ -259,7 +261,7 @@ public class DockerClientImpl implements DockerClient {
     }
 
     @Override
-    public ContainerInfo createContainer(ContainerConfig conf, String name) throws DockerException, JSONException {
+    public ContainerInfo createContainer(ContainerConfig conf, @Nullable String name) throws DockerException, JSONException {
         if (name != null && name.length() > 0 && !name.matches("/?[a-zA-Z0-9_-]+")) {
             throw new DockerException(String.format("Container name must match /?[a-zA-Z0-9_-]+ but '%s' does not", name));
         }
@@ -279,6 +281,7 @@ public class DockerClientImpl implements DockerClient {
         }
     }
 
+    @NotNull
     public ObjectMapper build() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);

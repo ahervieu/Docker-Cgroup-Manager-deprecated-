@@ -2,6 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
 /**
  *
@@ -32,6 +33,7 @@ public class NetworkPort {
         this.hostPort = hostPort;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "NetworkPort{" + "hostIp=" + hostIp + ", hostPort=" + hostPort + '}';

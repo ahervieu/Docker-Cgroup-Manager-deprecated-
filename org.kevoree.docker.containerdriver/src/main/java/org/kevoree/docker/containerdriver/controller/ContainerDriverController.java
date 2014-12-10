@@ -1,6 +1,6 @@
 package org.kevoree.docker.containerdriver.controller;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
+
 import javafx.beans.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,82 +36,96 @@ import java.util.stream.Stream;
  */
 public class ContainerDriverController implements Initializable {
 
-    @FXML public TextField cpu_number;
-    @FXML public TextField freq;
+    @FXML
+    public TextField cpu_number;
+    @FXML
+    public TextField freq;
 
-    @FXML public TextField maxMem;
-    @FXML public TextField swap;
+    @FXML
+    public TextField maxMem;
+    @FXML
+    public TextField swap;
 
-    @FXML public TextField incoming_traffic;
-    @FXML public TextField outgoing_traffic;
+    @FXML
+    public TextField incoming_traffic;
+    @FXML
+    public TextField outgoing_traffic;
 
-    @FXML public TextField corrupt_rate;
-    @FXML public TextField loss_rate;
-    @FXML public TextField delay;
+    @FXML
+    public TextField corrupt_rate;
+    @FXML
+    public TextField loss_rate;
+    @FXML
+    public TextField delay;
 
-    @FXML public TextField io_read;
-    @FXML public TextField io_write;
+    @FXML
+    public TextField io_read;
+    @FXML
+    public TextField io_write;
 
-    @FXML private ListView<CustomContainerDetail> dockerContainers ;
-    @FXML private TextField server;
+    @FXML
+    private ListView<CustomContainerDetail> dockerContainers;
+    @FXML
+    private TextField server;
 
-    private ObservableList<CustomContainerDetail> CCD ;
-   // private ObservableList<CustomContainerDetail> observableList ;
+    private ObservableList<CustomContainerDetail> CCD;
 
-    private DockerClientImpl dci ;
+    private DockerClientImpl dci;
 
-    private ContainerDriverFactory factory  ;
+    private ContainerDriverFactory factory;
 
     @FXML
     private void handleButtonApply() {
-        if(true)
-        {
-        ContainerDetail  currContainer = getCurrentContainer();
-            if(currContainer != null)
-            {
+        if (true) {
+            CustomContainerDetail currContainer = getCurrentContainer();
+            if (currContainer != null) {
 
-        BlkioDriver.setWriteValue(currContainer.getId(),io_write.getText());
-        BlkioDriver.setReadValue(currContainer.getId(),io_read.getText());
+                BlkioDriver.setWriteValue(currContainer.getId(), io_write.getText());
+                BlkioDriver.setReadValue(currContainer.getId(), io_read.getText());
 
-        CPUDriver.setCPUValue(currContainer.getId(),cpu_number.getText());
-        CPUDriver.setFreqValue(currContainer.getId(), freq.getText());
+                CPUDriver.setCPUValue(currContainer.getId(), cpu_number.getText());
+                CPUDriver.setFreqValue(currContainer.getId(), freq.getText());
 
-        MemoryDriver.setMaxMemValue(currContainer.getId(), maxMem.getText());
-        MemoryDriver.setSwapValue(currContainer.getId(), swap.getText());
-        }
+                MemoryDriver.setMaxMemValue(currContainer.getId(), maxMem.getText());
+                MemoryDriver.setSwapValue(currContainer.getId(), swap.getText());
+                if (currContainer.getBridge().isEmpty()) {
+                    System.err.println("Unable to retrieve bridge of docker node");
+                } else {
+                    NetworkDriver.setIncomingCorruptionRate(currContainer.getBridge(), Integer.valueOf(corrupt_rate.getText()));
+                    NetworkDriver.setIncomingDelay(currContainer.getBridge(), Integer.valueOf(delay.getText()));
+                    NetworkDriver.setIncomingLossRate(currContainer.getBridge(), Integer.valueOf(loss_rate.getText()));
+
+                    NetworkDriver.setIncomingTraffic(currContainer.getBridge(), incoming_traffic.getText());
+                    NetworkDriver.setOutgoingTraffic(currContainer.getBridge(), outgoing_traffic.getText());
+
+                    //Setting value in the model
+                    currContainer.setCorruptionRate(Integer.valueOf(corrupt_rate.getText()));
+                    currContainer.setDelayRate( Integer.valueOf(delay.getText()));
+                    currContainer.setLossRate(Integer.valueOf(loss_rate.getText()));
+                    currContainer.setIncomingTraffic(Integer.valueOf(incoming_traffic.getText()));
+                    currContainer.setOutgoingTraffic(Integer.valueOf(outgoing_traffic.getText()));
+
+                }
+            }
         }
     }
 
-    private ContainerDetail getCurrentContainer()
-    {
-
-        ContainerDetail  currContainer = null ;
-      
-        try {
-        if(dockerContainers.getSelectionModel().getSelectedItem() != null ){
-       currContainer  =  dci.getContainer(dockerContainers.getSelectionModel().getSelectedItem().getContainer().getName());
-        }
-
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return currContainer ;
+    private CustomContainerDetail getCurrentContainer() {
+        CustomContainerDetail currContainer = dockerContainers.getSelectionModel().getSelectedItem();
+        return currContainer;
     }
-
 
 
     @FXML
     private void refreshServer() {
-        dci = new DockerClientImpl(server.getText()) ;
-        updateCustomContainerDetailList() ;
+        dci = new DockerClientImpl(server.getText());
+        updateCustomContainerDetailList();
     }
 
     @FXML
     private void refreshServerKey() {
-        dci = new DockerClientImpl(server.getText()) ;
-        updateCustomContainerDetailList() ;
+        dci = new DockerClientImpl(server.getText());
+        updateCustomContainerDetailList();
     }
 
     /*
@@ -122,67 +136,54 @@ public class ContainerDriverController implements Initializable {
     handle selection
      */
 
-    private void updateCustomContainerDetailList()
-    {
-        String currentSelectedContainer = "" ;
-        if(dockerContainers.getSelectionModel().getSelectedItem() != null)
-        {
-            currentSelectedContainer = dockerContainers.getSelectionModel().getSelectedItem().getContainer().getName() ;
-        }
+    private void updateCustomContainerDetailList() {
 
-
+        CustomContainerDetail curr = dockerContainers.getSelectionModel().getSelectedItem();
         //Updating ContainerList
         // removing Container that are no more available
         try {
-
-            List<Container> lstCon   = dci.getContainers();
-           // Check that all current container in the app are still active
-
+            List<CustomContainerDetail> ccd_to_rm = new ArrayList<>();
+            List<CustomContainerDetail> ccd_to_add = new ArrayList<>();
+            List<Container> lstCon = dci.getContainers();
+            // Check that all current container in the app are still active
             for (CustomContainerDetail customContainerDetail : CCD) {
-                boolean stop = false ;
-                for (int i = 0; i < lstCon.size() && !stop ; i++) {
+                boolean stop = false;
+                for (int i = 0; i < lstCon.size() && !stop; i++) {
                     Container currContain = lstCon.get(i);
-                    if(currContain.getId().equals(customContainerDetail.getContainer().getId()))
-                    {
-                        stop = true ;
+                    if (currContain.getId().equals(customContainerDetail.getContainer().getId())) {
+                        stop = true;
                     }
                 }
-                if(!stop)  {
-               //    CCD.remove(customContainerDetail);
-                   CCD.remove(customContainerDetail) ;
+                if (!stop) {
 
-
-
-            //        dockerContainers.
-
+                    ccd_to_rm.add(customContainerDetail);
                 }
             }
 
-         // Check if there are new container
+            // Check if there are new container
             // adding new container
             for (Container container : lstCon) {
-                boolean found = false ;
+                boolean found = false;
                 for (int i = 0; i < CCD.size() && !found; i++) {
                     CustomContainerDetail currContainDetail = CCD.get(i);
-                    if(container.getId().equals(currContainDetail.getContainer().getId()))
-                    {
-                        found = true ;
+                    if (container.getId().equals(currContainDetail.getContainer().getId())) {
+                        found = true;
                     }
                 }
-                if(!found)
-                {
-                    CCD.add(factory.createCustomContainerDetail(dci.getContainer(container.getId())));
+                if (!found) {
+                    ccd_to_add.add(factory.createCustomContainerDetail(dci.getContainer(container.getId())));
+
                 }
             }
+            CCD.removeAll(ccd_to_rm);
+            CCD.addAll(ccd_to_add);
 
-            forceListRefreshOn(dockerContainers) ;
-           // CCD.remove()  ;
+            //Check if the current selected still here refresh
+            if (!ccd_to_rm.contains(curr)) {
 
-            //Updating the view
+                refreshContainerView();
+            }
 
-
-
-            refreshContainerView() ;
 
         } catch (DockerException e) {
             e.printStackTrace();
@@ -191,141 +192,105 @@ public class ContainerDriverController implements Initializable {
         }
     }
 
-    private void populateUI() {
-
-        /*
-    List<String> containerNameList = new ArrayList<String>();
-    try {
-        List<Container> lstCon   = dci.getContainers();
-        for (Container container : lstCon) {
-            containerNameList.add(container.getNames()[0].replace("/",""));
-        }
-
-    } catch (DockerException e) {
-        System.err.println("Unable to connect to the rest server");
-        e.printStackTrace();
-    } catch (JSONException e) {
-
-        System.err.println("Json Parsing Error");
-        e.printStackTrace();
-    }
-*/
-        //pdateCustomContainerDetailList() ;
-
-
-
-    }
-
-    private <T> void forceListRefreshOn(ListView<T> lsv) {
-        ObservableList<T> items = lsv.<T>getItems();
-        lsv.<T>setItems(null);
-        lsv.<T>setItems(items);
-    }
-
-
-
     private void refreshContainerView() {
-        ContainerDetail currContainer = getCurrentContainer() ;
-        if(currContainer != null) {
-        ContainerConfig currConf = currContainer.getConfig();
-        attachToolTip();
-        io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
-        io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
+        CustomContainerDetail currContainer = getCurrentContainer();
 
-        cpu_number.setText(CPUDriver.getCpuValue(currContainer.getId()));
-        freq.setText(CPUDriver.getFreqValue(currContainer.getId()));
+        if (currContainer != null) {
+            ContainerConfig currConf = currContainer.getContainer().getConfig();
+            attachToolTip();
+            io_read.setText(BlkioDriver.getReadValue(currContainer.getId()));
+            io_write.setText(BlkioDriver.getWriteValue(currContainer.getId()));
 
-        maxMem.setText(MemoryDriver.getMaxMemValue(currContainer.getId()));
-        swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
+            cpu_number.setText(CPUDriver.getCpuValue(currContainer.getId()));
+            freq.setText(CPUDriver.getFreqValue(currContainer.getId()));
 
+            maxMem.setText(MemoryDriver.getMaxMemValue(currContainer.getId()));
+            swap.setText(MemoryDriver.getSwapValue(currContainer.getId()));
+            System.out.println(String.valueOf(currContainer.getIncomingTraffic()));
+            corrupt_rate.setText(String.valueOf(currContainer.getCorruptionRate()));
+            delay.setText(String.valueOf(currContainer.getDelayRate()));
+            loss_rate.setText(String.valueOf(currContainer.getLossRate()));
+            incoming_traffic.setText(String.valueOf(currContainer.getIncomingTraffic()));
+            outgoing_traffic.setText(String.valueOf(currContainer.getOutgoingTraffic()));
 
-    }
+        }
     }
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        factory = new ContainerDriverFactory() ;
-        if(!isRoot())
-        {
+        NetworkDriver.addIpTableRule() ;
+        factory = new ContainerDriverFactory();
+        if (!isRoot()) {
             System.err.println("Root access is necessary to perform operations");
         }
-     //   dockerContainers = new ListView<>();
-        dci = new DockerClientImpl(server.getText()) ;
+        dci = new DockerClientImpl(server.getText());
         CCD = FXCollections.observableArrayList();
         dockerContainers.setItems(CCD);
-        if(!CCD.isEmpty())
-        {
-            dockerContainers.getSelectionModel().select(0);
-        }
-
-       dockerContainers.setCellFactory(new Callback<ListView<CustomContainerDetail>, ListCell<CustomContainerDetail>>() {
+        dockerContainers.setCellFactory(new Callback<ListView<CustomContainerDetail>, ListCell<CustomContainerDetail>>() {
             @Override
             public ListCell<CustomContainerDetail> call(ListView<CustomContainerDetail> param) {
                 ListCell<CustomContainerDetail> cell = new ListCell<CustomContainerDetail>() {
                     @Override
-                    protected void updateItem(CustomContainerDetail t, boolean bln) {
+                    protected void updateItem( CustomContainerDetail t, boolean bln) {
                         super.updateItem(t, bln);
 
                         if (t != null && !bln) {
-                           setText(t.nameProperty().getValue().replace("/",""));
-                        }else{
+                            setText(t.nameProperty().getValue().replace("/", ""));
+                        } else {
                             setText(null);
                         }
                     }
                 };
 
                 return cell;
-            }});
-
- /*       dockerContainers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<CustomContainerDetail>() {
-            @Override
-            public void changed(ObservableValue<? extends CustomContainerDetail> observable, CustomContainerDetail oldValue, CustomContainerDetail newValue) {
-                System.out.println(dockerContainers.getSelectionModel().getSelectedItem().nameProperty().getValue());
-                updateCustomContainerDetailList() ;
             }
+        });
+        if(CCD.size() > 0){
+            dockerContainers.getSelectionModel().select(0);
         }
-        );*/
-//        NetworkDriver.addIpTableRule() ;
-        updateCustomContainerDetailList() ;
+        updateCustomContainerDetailList();
 
-
+        dockerContainers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<CustomContainerDetail>() {
+    @Override
+    public void changed(ObservableValue<? extends CustomContainerDetail> observable, CustomContainerDetail oldValue, CustomContainerDetail newValue) {
+        updateCustomContainerDetailList();
+    }
+}
+        );
+//
 
 
     }
 
-    private void attachToolTip()
-    {
-        Tooltip io_wrt_tt = new Tooltip( );
+    private void attachToolTip() {
+        Tooltip io_wrt_tt = new Tooltip();
 
         io_wrt_tt.setText(ToolTipDescriptor.blkio_throttle_write_descriptor);
         io_write.setTooltip(io_wrt_tt);
 
-        Tooltip io_rd_tt = new Tooltip( );
+        Tooltip io_rd_tt = new Tooltip();
         io_rd_tt.setText(ToolTipDescriptor.blkio_throttle_read_descriptor);
         io_read.setTooltip(io_rd_tt);
 
-        Tooltip cpu_number_tt = new Tooltip( );
+        Tooltip cpu_number_tt = new Tooltip();
         cpu_number_tt.setText(ToolTipDescriptor.cpuset_cpus_descriptor);
         cpu_number.setTooltip(cpu_number_tt);
 
-        Tooltip freq_tt = new Tooltip( );
+        Tooltip freq_tt = new Tooltip();
         freq_tt.setText(ToolTipDescriptor.cpf_quota_us_descriptor);
         freq.setTooltip(freq_tt);
 
-        Tooltip maxMem_tt = new Tooltip( );
+        Tooltip maxMem_tt = new Tooltip();
         maxMem_tt.setText(ToolTipDescriptor.memory_max_mem_descriptor);
         maxMem.setTooltip(maxMem_tt);
 
-        Tooltip swap_tt = new Tooltip( );
+        Tooltip swap_tt = new Tooltip();
         swap_tt.setText(ToolTipDescriptor.memory_swap_descriptor);
         swap.setTooltip(swap_tt);
-
-
     }
 
-    private boolean isRoot()
-    {
-        return  new File("/usr/bin/ls").canWrite();
+    private boolean isRoot() {
+        return new File("/usr/bin/ls").canWrite();
     }
-   }
+}

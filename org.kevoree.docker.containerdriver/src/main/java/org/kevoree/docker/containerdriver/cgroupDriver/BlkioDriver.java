@@ -1,5 +1,6 @@
 package org.kevoree.docker.containerdriver.cgroupDriver;
 
+import org.apache.commons.lang.StringUtils;
 import org.kevoree.docker.containerdriver.model.CommitConfig;
 
 import java.io.File;
@@ -35,17 +36,18 @@ public class BlkioDriver {
         }
 
     public static void setReadValue(String containerId, String value) {
-        if(!value.isEmpty() ){
+        if(StringUtils.isNumeric(value)){
         value = "8:0 " + value ;
         GenericDriver.SetValue(containerId,CgroupStructure.blkio_subsystem,CgroupStructure.blkio_read,value) ;
         }
     }
 
     public static void setWriteValue(String containerId, String value) {
-        if(!value.isEmpty() ){
-            value = "8:0 " + value ;
+        if(StringUtils.isNumeric(value)){
+           value = "8:0 " + value ;
             GenericDriver.SetValue(containerId,CgroupStructure.blkio_subsystem,CgroupStructure.blkio_write,value) ;
-        } }
+        }
+    }
 
 
 }

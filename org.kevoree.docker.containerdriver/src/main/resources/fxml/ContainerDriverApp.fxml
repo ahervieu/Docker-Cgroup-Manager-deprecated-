@@ -89,6 +89,7 @@
                               <Font size="20.0" />
                            </font>
                         </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="To enable the feature, start container with the option --cap-add=NET_ADMIN" />
                         <HBox prefHeight="36.0" prefWidth="536.0">
                            <children>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Incoming traffic (kbit)">

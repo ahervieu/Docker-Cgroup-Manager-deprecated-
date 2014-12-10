@@ -2,6 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
 /**
  *
@@ -83,6 +84,7 @@ public class ContainerState {
         this.paused = paused;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "ContainerState{" + "running=" + running + ", pid=" + pid + ", exitCode=" + exitCode + ", startedAt=" + startedAt + ", restarting="+restarting+", finishedAt=" + finishedAt + ", ghost=" + ghost + ", paused="+paused+"}";

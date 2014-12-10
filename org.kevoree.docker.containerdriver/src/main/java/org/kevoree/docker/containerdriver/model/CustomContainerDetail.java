@@ -4,6 +4,8 @@ import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.util.Callback;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kevoree.docker.containerdriver.cgroupDriver.NetworkDriver;
 
 /**
@@ -22,13 +24,17 @@ public class CustomContainerDetail {
     private SimpleStringProperty idProperty ;
     private SimpleStringProperty nameProp ;
 
-    public CustomContainerDetail(ContainerDetail container) {
+    public CustomContainerDetail(@NotNull ContainerDetail container) {
         idProperty = new SimpleStringProperty() ;
         idProperty.setValue(container.getId());
         nameProp = new SimpleStringProperty();
         nameProp.setValue(container.getName());
         System.out.println(nameProp.getValue());
         this.container = container ;
+        incomingTraffic= -1;
+        outgoingTraffic =-1;
+        lossRate = -1;
+        delayRate = -1 ;
     }
 
     public SimpleStringProperty nameProperty() {
@@ -36,7 +42,7 @@ public class CustomContainerDetail {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         final CustomContainerDetail other = (CustomContainerDetail) obj;
@@ -112,6 +118,7 @@ public class CustomContainerDetail {
         this.delayRate = delayRate;
     }
 
+    @NotNull
     public static Callback<CustomContainerDetail, Observable[]> extractor() {
         return (CustomContainerDetail p) -> new Observable[]{p.nameProperty()};
     }

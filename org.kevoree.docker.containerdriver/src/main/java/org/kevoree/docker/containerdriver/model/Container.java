@@ -2,6 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -69,6 +70,7 @@ public class Container {
         return status;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "Container{" +

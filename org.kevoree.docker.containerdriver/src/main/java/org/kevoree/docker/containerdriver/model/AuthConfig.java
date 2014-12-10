@@ -2,6 +2,7 @@ package org.kevoree.docker.containerdriver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by leiko on 22/05/14.
@@ -53,6 +54,7 @@ public class AuthConfig {
         this.serverAddress = serverAddress;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "AuthConfig {" +
