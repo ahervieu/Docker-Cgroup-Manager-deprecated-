@@ -119,8 +119,4 @@ public class CustomContainerDetail {
     }
 
 
-    public static Callback<CustomContainerDetail, Observable[]> extractor() {
-        return (CustomContainerDetail p) -> new Observable[]{p.nameProperty()};
-    }
-
 }

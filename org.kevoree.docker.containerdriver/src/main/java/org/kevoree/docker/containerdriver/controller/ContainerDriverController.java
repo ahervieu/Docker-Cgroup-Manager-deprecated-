@@ -203,7 +203,6 @@ public class ContainerDriverController implements Initializable {
 
             //Check if the current selected still here refresh
             if (!ccd_to_rm.contains(curr)) {
-
                 refreshContainerView();
             }
 
@@ -282,9 +281,6 @@ public class ContainerDriverController implements Initializable {
 }
         );
         attachToolTip();
-//
-
-
     }
 
     private void attachToolTip() {
